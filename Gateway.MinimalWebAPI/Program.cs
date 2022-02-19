@@ -1,4 +1,5 @@
 using Gateway.MinimalWebAPI;
+using Gateway.MinimalWebAPI.Models;
 using Gateway.MinimalWebAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,7 @@ builder.Services.Configure<ApisConfigure>(builder.Configuration.GetSection("Apis
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("yarp"));
 builder.Services.AddTransient<IUsersService, UsersService>();
 builder.Services.AddTransient<IAccountsService, AccountsService>();
+builder.Services.AddTransient<IGrpcService, GrpcService>();
 
 var app = builder.Build();
 
@@ -22,6 +24,10 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/", () => "I'am Gateway API!")
     .ExcludeFromDescription();
+app.MapGet("/api/usersWithAccounts", async (IGrpcService grpcService) => await grpcService.GetUsersWithAccounts())
+    .Produces<List<UserWithAccountViewModel>>(StatusCodes.Status200OK)
+    .WithName("GetAllUsersWithAccounts")
+    .WithTags("Getters");
 app.MapPost("/api/initialData", async (IUsersService usersService) => await usersService.InitialData(new CancellationToken()))
     .Produces(StatusCodes.Status201Created)
     .WithName("InitialData")

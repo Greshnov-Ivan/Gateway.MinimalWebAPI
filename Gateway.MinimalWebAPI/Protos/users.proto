@@ -1,0 +1,17 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Users.MinimalWebAPI";
+
+package pricing.protos;
+
+service UsersGrpc {
+	rpc GetListUsers(GetUsersRequest) returns (stream UserResponse);
+}
+
+message GetUsersRequest {
+}
+
+message UserResponse {
+	string id = 1;
+    string name = 2;
+}
